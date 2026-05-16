@@ -6,10 +6,10 @@ import { calculateXp, countStudyStreak, levelFromXp, personalRecords } from '../
 
 export default function Profile() {
   const { user } = useAuth();
-  const { subjects, tasks, sessions, simulations, achievements } = useStudy();
-  const xp = calculateXp(subjects, tasks, sessions, simulations);
+  const { subjects, tasks, sessions, achievements } = useStudy();
+  const xp = calculateXp(subjects, tasks, sessions);
   const level = levelFromXp(xp);
-  const records = personalRecords(tasks, sessions, simulations);
+  const records = personalRecords(tasks, sessions);
   const name = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Estudante';
 
   return (
@@ -49,8 +49,8 @@ export default function Profile() {
         </article>
         <article className="glass rounded-[2rem] p-5">
           <Star className="text-blue-600" size={24} />
-          <p className="mt-4 text-sm font-extrabold text-slate-400">Melhor simulado</p>
-          <p className="mt-2 text-3xl font-extrabold text-slate-950">{records.bestSimulation}</p>
+          <p className="mt-4 text-sm font-extrabold text-slate-400">Melhor dia de tarefas</p>
+          <p className="mt-2 text-3xl font-extrabold text-slate-950">{records.bestTaskDay}</p>
         </article>
         <article className="glass rounded-[2rem] p-5">
           <Award className="text-amber-500" size={24} />

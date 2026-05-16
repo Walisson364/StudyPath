@@ -3,7 +3,7 @@ import { createContext, ReactNode, useContext, useEffect, useMemo, useState } fr
 import { startOfWeek } from 'date-fns';
 import { demoAchievements, demoGoal, demoSubjects, demoTasks } from '../data/demo';
 import { hasSupabaseConfig, supabase } from '../lib/supabase';
-import { Achievement, SimulationResult, StudySession, StudyTask, Subject, WeeklyGoal } from '../types';
+import { Achievement, StudySession, StudyTask, Subject, WeeklyGoal } from '../types';
 
 /* eslint-disable react-refresh/only-export-components */
 
@@ -11,7 +11,6 @@ type StudyContextValue = {
   subjects: Subject[];
   tasks: StudyTask[];
   sessions: StudySession[];
-  simulations: SimulationResult[];
   goal: WeeklyGoal;
   achievements: Achievement[];
   loading: boolean;
@@ -23,7 +22,6 @@ type StudyContextValue = {
   removeTask: (id: string) => Promise<void>;
   saveGoal: (goal: WeeklyGoal) => Promise<void>;
   registerFocusSession: (minutes: number) => Promise<void>;
-  addSimulation: (simulation: Pick<SimulationResult, 'title' | 'score' | 'total_questions' | 'correct_answers' | 'subject_focus'>) => Promise<void>;
   applyTemplate: (template: { subjects: Pick<Subject, 'name' | 'color'>[]; tasks: Array<Pick<StudyTask, 'title' | 'priority' | 'due_date' | 'subject_id'>>; goal: WeeklyGoal }) => Promise<void>;
 };
 
@@ -35,7 +33,6 @@ export function StudyProvider({ children, user }: { children: ReactNode; user: U
   const [subjects, setSubjects] = useState<Subject[]>(hasSupabaseConfig ? [] : demoSubjects);
   const [tasks, setTasks] = useState<StudyTask[]>(hasSupabaseConfig ? [] : demoTasks);
   const [sessions, setSessions] = useState<StudySession[]>([]);
-  const [simulations, setSimulations] = useState<SimulationResult[]>([]);
   const [goal, setGoal] = useState<WeeklyGoal>(demoGoal);
   const [achievements, setAchievements] = useState<Achievement[]>(demoAchievements);
   const [loading, setLoading] = useState(false);
@@ -45,11 +42,10 @@ export function StudyProvider({ children, user }: { children: ReactNode; user: U
 
     async function load() {
       setLoading(true);
-      const [subjectsResult, tasksResult, sessionsResult, simulationsResult, goalsResult, achievementsResult] = await Promise.all([
+      const [subjectsResult, tasksResult, sessionsResult, goalsResult, achievementsResult] = await Promise.all([
         supabase.from('subjects').select('*').order('created_at'),
         supabase.from('tasks').select('*').order('created_at', { ascending: false }),
         supabase.from('study_sessions').select('*').order('studied_at', { ascending: true }),
-        supabase.from('simulation_results').select('*').order('taken_at', { ascending: false }),
         supabase.from('weekly_goals').select('*').eq('week_start', currentWeek()).maybeSingle(),
         supabase.from('achievements').select('*').order('created_at'),
       ]);
@@ -57,7 +53,6 @@ export function StudyProvider({ children, user }: { children: ReactNode; user: U
       if (subjectsResult.data) setSubjects(subjectsResult.data);
       if (tasksResult.data) setTasks(tasksResult.data);
       if (sessionsResult.data) setSessions(sessionsResult.data);
-      if (simulationsResult.data) setSimulations(simulationsResult.data);
       if (goalsResult.data) setGoal(goalsResult.data);
       if (achievementsResult.data) setAchievements(achievementsResult.data);
       setLoading(false);
@@ -71,7 +66,6 @@ export function StudyProvider({ children, user }: { children: ReactNode; user: U
       subjects,
       tasks,
       sessions,
-      simulations,
       goal,
       achievements,
       loading,
@@ -159,22 +153,6 @@ export function StudyProvider({ children, user }: { children: ReactNode; user: U
           if (data) setSessions((list) => [...list, data]);
         }
       },
-      async addSimulation(simulation) {
-        const optimistic: SimulationResult = {
-          id: crypto.randomUUID(),
-          taken_at: new Date().toISOString(),
-          ...simulation,
-        };
-        setSimulations((list) => [optimistic, ...list]);
-        if (hasSupabaseConfig && user) {
-          const { data } = await supabase
-            .from('simulation_results')
-            .insert({ ...simulation, user_id: user.id })
-            .select()
-            .single();
-          if (data) setSimulations((list) => list.map((item) => (item.id === optimistic.id ? data : item)));
-        }
-      },
       async applyTemplate(template) {
         const createdSubjects = template.subjects.map((subject) => ({
           id: crypto.randomUUID(),
@@ -223,7 +201,7 @@ export function StudyProvider({ children, user }: { children: ReactNode; user: U
         }
       },
     }),
-    [achievements, goal, loading, sessions, simulations, subjects, tasks, user],
+    [achievements, goal, loading, sessions, subjects, tasks, user],
   );
 
   return <StudyContext.Provider value={api}>{children}</StudyContext.Provider>;

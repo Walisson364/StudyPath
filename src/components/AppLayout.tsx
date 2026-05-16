@@ -13,7 +13,7 @@ const nav = [
   { to: '/app/calendario', label: 'Calendario', icon: CalendarDays },
   { to: '/app/metas', label: 'Metas', icon: Goal },
   { to: '/app/foco', label: 'Foco', icon: Focus },
-  { to: '/app/simulados', label: 'Simulados', icon: Trophy },
+  { to: '/app/desafios', label: 'Desafios', icon: Trophy },
   { to: '/app/conquistas', label: 'Conquistas', icon: Medal },
   { to: '/app/graficos', label: 'Graficos', icon: BarChart3 },
   { to: '/app/perfil', label: 'Perfil', icon: UserCircle2 },

@@ -8,13 +8,13 @@ import { buildWeeklyEvolution, calculateXp, countStudyStreak, levelFromXp } from
 
 export default function Dashboard() {
   const { user } = useAuth();
-  const { subjects, tasks, sessions, simulations, goal } = useStudy();
+  const { subjects, tasks, sessions, goal } = useStudy();
   const weeklyEvolution = buildWeeklyEvolution(sessions, tasks);
   const completed = tasks.filter((task) => task.completed).length;
   const progress = Math.round((subjects.reduce((sum, subject) => sum + subject.progress, 0) / Math.max(subjects.length, 1)) || 0);
   const hours = weeklyEvolution.reduce((sum, item) => sum + item.horas, 0);
   const streak = countStudyStreak(sessions);
-  const xp = calculateXp(subjects, tasks, sessions, simulations);
+  const xp = calculateXp(subjects, tasks, sessions);
   const level = levelFromXp(xp);
   const name = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'estudante';
 

@@ -6,8 +6,8 @@ import { buildWeeklyEvolution, personalRecords } from '../lib/studyStats';
 const days = ['Segunda', 'Terca', 'Quarta', 'Quinta', 'Sexta', 'Sabado', 'Domingo'];
 
 export default function Planner() {
-  const { subjects, tasks, sessions, simulations, goal, applyTemplate } = useStudy();
-  const records = personalRecords(tasks, sessions, simulations);
+  const { subjects, tasks, sessions, goal, applyTemplate } = useStudy();
+  const records = personalRecords(tasks, sessions);
   const weekly = buildWeeklyEvolution(sessions, tasks);
 
   return (

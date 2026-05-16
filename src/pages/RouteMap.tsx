@@ -17,7 +17,7 @@ export default function RouteMap() {
     { title: 'Estudar conteudos', progress: clamp((studiedHours / Math.max(goal.target_hours, 1)) * 100), icon: ClipboardCheck },
     { title: 'Revisar', progress: clamp(averageSubjectProgress), icon: RotateCcw },
     { title: 'Resolver exercicios', progress: clamp((completedTasks / Math.max(tasks.length, 1)) * 100), icon: Dumbbell },
-    { title: 'Fazer simulados', progress: clamp((tasks.filter((task) => task.title.toLowerCase().includes('simulado') && task.completed).length / 1) * 100), icon: Award },
+    { title: 'Concluir desafios', progress: clamp(((subjects.length ? 1 : 0) + (sessions.length ? 1 : 0) + (completedTasks >= 3 ? 1 : 0)) / 3 * 100), icon: Award },
     { title: 'Concluir meta', progress: clamp(weeklyGoalProgress), icon: Flag },
   ];
 

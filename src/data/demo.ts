@@ -17,7 +17,7 @@ export const demoTasks: StudyTask[] = [
 export const demoGoal: WeeklyGoal = {
   target_hours: 18,
   target_tasks: 12,
-  main_objective: 'Fechar o ciclo de revisao e fazer um simulado completo.',
+  main_objective: 'Fechar o ciclo de revisao e resolver um bloco de exercicios.',
 };
 
 export const demoAchievements: Achievement[] = [

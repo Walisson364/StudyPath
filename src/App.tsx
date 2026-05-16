@@ -15,7 +15,7 @@ import Charts from './pages/Charts';
 import Onboarding from './pages/Onboarding';
 import Planner from './pages/Planner';
 import Calendar from './pages/Calendar';
-import Simulations from './pages/Simulations';
+import Challenges from './pages/Challenges';
 import Profile from './pages/Profile';
 
 function PrivateRoute() {
@@ -52,7 +52,7 @@ export default function App() {
           <Route path="calendario" element={<Calendar />} />
           <Route path="metas" element={<Goals />} />
           <Route path="foco" element={<Focus />} />
-          <Route path="simulados" element={<Simulations />} />
+          <Route path="desafios" element={<Challenges />} />
           <Route path="conquistas" element={<Achievements />} />
           <Route path="graficos" element={<Charts />} />
           <Route path="perfil" element={<Profile />} />
