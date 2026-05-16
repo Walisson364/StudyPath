@@ -1,5 +1,5 @@
 import { startOfWeek } from 'date-fns';
-import { StudySession, StudyTask } from '../types';
+import { SimulationResult, StudySession, StudyTask, Subject } from '../types';
 
 const dayLabels = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab', 'Dom'];
 
@@ -34,4 +34,33 @@ export function countStudyStreak(sessions: StudySession[]) {
   }
 
   return streak;
+}
+
+export function calculateXp(subjects: Subject[], tasks: StudyTask[], sessions: StudySession[], simulations: SimulationResult[]) {
+  const completedTasks = tasks.filter((task) => task.completed).length;
+  const focusMinutes = sessions.reduce((sum, session) => sum + session.duration_minutes, 0);
+  const simulationScore = simulations.reduce((sum, simulation) => sum + Math.round(simulation.score / 5), 0);
+  return subjects.length * 20 + completedTasks * 35 + Math.floor(focusMinutes / 5) * 5 + simulationScore;
+}
+
+export function levelFromXp(xp: number) {
+  const level = Math.floor(xp / 250) + 1;
+  const currentLevelXp = (level - 1) * 250;
+  const nextLevelXp = level * 250;
+  return {
+    level,
+    currentLevelXp,
+    nextLevelXp,
+    progress: ((xp - currentLevelXp) / (nextLevelXp - currentLevelXp)) * 100,
+  };
+}
+
+export function personalRecords(tasks: StudyTask[], sessions: StudySession[], simulations: SimulationResult[]) {
+  const weekly = buildWeeklyEvolution(sessions, tasks);
+  return {
+    bestStudyDay: Math.max(0, ...weekly.map((day) => day.horas)),
+    bestTaskDay: Math.max(0, ...weekly.map((day) => day.tarefas)),
+    bestSimulation: Math.max(0, ...simulations.map((simulation) => simulation.score)),
+    completedTasks: tasks.filter((task) => task.completed).length,
+  };
 }

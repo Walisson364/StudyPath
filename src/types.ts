@@ -34,6 +34,17 @@ export type StudySession = {
   studied_at: string;
 };
 
+export type SimulationResult = {
+  id: string;
+  user_id?: string;
+  title: string;
+  score: number;
+  total_questions: number;
+  correct_answers: number;
+  subject_focus?: string | null;
+  taken_at: string;
+};
+
 export type Achievement = {
   id: string;
   code: string;

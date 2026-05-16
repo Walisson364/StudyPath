@@ -1,17 +1,22 @@
-import { BarChart3, BookOpen, Flame, Focus, Goal, LayoutDashboard, LogOut, Map, Medal, Menu, Sparkles, X } from 'lucide-react';
+import { BarChart3, BookOpen, CalendarDays, ClipboardList, Flame, Focus, Goal, GraduationCap, LayoutDashboard, LogOut, Map, Medal, Menu, Sparkles, Trophy, UserCircle2, X } from 'lucide-react';
 import { useState } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const nav = [
   { to: '/app', label: 'Dashboard', icon: LayoutDashboard, end: true },
+  { to: '/app/onboarding', label: 'Onboarding', icon: GraduationCap },
   { to: '/app/rota', label: 'Minha Rota', icon: Map },
   { to: '/app/materias', label: 'Materias', icon: BookOpen },
   { to: '/app/tarefas', label: 'Tarefas', icon: Flame },
+  { to: '/app/planejamento', label: 'Planejamento', icon: ClipboardList },
+  { to: '/app/calendario', label: 'Calendario', icon: CalendarDays },
   { to: '/app/metas', label: 'Metas', icon: Goal },
   { to: '/app/foco', label: 'Foco', icon: Focus },
+  { to: '/app/simulados', label: 'Simulados', icon: Trophy },
   { to: '/app/conquistas', label: 'Conquistas', icon: Medal },
   { to: '/app/graficos', label: 'Graficos', icon: BarChart3 },
+  { to: '/app/perfil', label: 'Perfil', icon: UserCircle2 },
 ];
 
 export default function AppLayout() {
@@ -29,7 +34,7 @@ export default function AppLayout() {
           <p className="text-xs font-semibold text-slate-400">Rota do Estudo</p>
         </div>
       </div>
-      <nav className="flex flex-1 flex-col gap-1">
+      <nav className="flex flex-1 flex-col gap-1 overflow-y-auto pr-1">
         {nav.map((item) => (
           <NavLink
             key={item.to}

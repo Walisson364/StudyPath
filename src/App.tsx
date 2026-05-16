@@ -12,6 +12,11 @@ import Goals from './pages/Goals';
 import Focus from './pages/Focus';
 import Achievements from './pages/Achievements';
 import Charts from './pages/Charts';
+import Onboarding from './pages/Onboarding';
+import Planner from './pages/Planner';
+import Calendar from './pages/Calendar';
+import Simulations from './pages/Simulations';
+import Profile from './pages/Profile';
 
 function PrivateRoute() {
   const { user, loading } = useAuth();
@@ -39,13 +44,18 @@ export default function App() {
         <Route path="/recuperar-senha" element={<AuthPage mode="reset" />} />
         <Route path="/app" element={<PrivateRoute />}>
           <Route index element={<Dashboard />} />
+          <Route path="onboarding" element={<Onboarding />} />
           <Route path="rota" element={<RouteMap />} />
           <Route path="materias" element={<Subjects />} />
           <Route path="tarefas" element={<Tasks />} />
+          <Route path="planejamento" element={<Planner />} />
+          <Route path="calendario" element={<Calendar />} />
           <Route path="metas" element={<Goals />} />
           <Route path="foco" element={<Focus />} />
+          <Route path="simulados" element={<Simulations />} />
           <Route path="conquistas" element={<Achievements />} />
           <Route path="graficos" element={<Charts />} />
+          <Route path="perfil" element={<Profile />} />
         </Route>
       </Routes>
     </AuthProvider>

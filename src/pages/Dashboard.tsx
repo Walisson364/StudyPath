@@ -4,16 +4,18 @@ import StatCard from '../components/StatCard';
 import ProgressBar from '../components/ProgressBar';
 import { useAuth } from '../context/AuthContext';
 import { useStudy } from '../context/StudyContext';
-import { buildWeeklyEvolution, countStudyStreak } from '../lib/studyStats';
+import { buildWeeklyEvolution, calculateXp, countStudyStreak, levelFromXp } from '../lib/studyStats';
 
 export default function Dashboard() {
   const { user } = useAuth();
-  const { subjects, tasks, sessions, goal } = useStudy();
+  const { subjects, tasks, sessions, simulations, goal } = useStudy();
   const weeklyEvolution = buildWeeklyEvolution(sessions, tasks);
   const completed = tasks.filter((task) => task.completed).length;
   const progress = Math.round((subjects.reduce((sum, subject) => sum + subject.progress, 0) / Math.max(subjects.length, 1)) || 0);
   const hours = weeklyEvolution.reduce((sum, item) => sum + item.horas, 0);
   const streak = countStudyStreak(sessions);
+  const xp = calculateXp(subjects, tasks, sessions, simulations);
+  const level = levelFromXp(xp);
   const name = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'estudante';
 
   return (
@@ -43,7 +45,7 @@ export default function Dashboard() {
         <StatCard label="Dias seguidos" value={`${streak}`} detail="Sequencia ativa de estudos" icon={Flame} tone="bg-orange-50 text-orange-600" />
         <StatCard label="Horas estudadas" value={`${hours.toFixed(1)}h`} detail="Registradas nesta semana" icon={Clock} tone="bg-blue-50 text-blue-600" />
         <StatCard label="Tarefas concluidas" value={`${completed}`} detail={`${tasks.length} tarefas no total`} icon={CheckCircle2} tone="bg-emerald-50 text-emerald-600" />
-        <StatCard label="Metas da semana" value={`${Math.round((completed / goal.target_tasks) * 100)}%`} detail={goal.main_objective} icon={Goal} tone="bg-violet-50 text-violet-600" />
+        <StatCard label="Nivel academico" value={`Nv. ${level.level}`} detail={`${xp} XP acumulados`} icon={Goal} tone="bg-violet-50 text-violet-600" />
       </section>
 
       <section className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">

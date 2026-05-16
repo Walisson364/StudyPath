@@ -60,6 +60,17 @@ create table if not exists public.achievements (
   unique(user_id, code)
 );
 
+create table if not exists public.simulation_results (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  title text not null,
+  score numeric(7,2) not null default 0,
+  total_questions integer not null default 0,
+  correct_answers integer not null default 0,
+  subject_focus text,
+  taken_at timestamptz not null default now()
+);
+
 create table if not exists public.user_progress (
   user_id uuid primary key references auth.users(id) on delete cascade,
   streak_days integer not null default 0,
@@ -75,6 +86,7 @@ alter table public.tasks enable row level security;
 alter table public.study_sessions enable row level security;
 alter table public.weekly_goals enable row level security;
 alter table public.achievements enable row level security;
+alter table public.simulation_results enable row level security;
 alter table public.user_progress enable row level security;
 
 create policy "Users can read own profile" on public.profiles for select using (auth.uid() = id);
@@ -106,6 +118,11 @@ create policy "Users can read own achievements" on public.achievements for selec
 create policy "Users can insert own achievements" on public.achievements for insert with check (auth.uid() = user_id);
 create policy "Users can update own achievements" on public.achievements for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
 create policy "Users can delete own achievements" on public.achievements for delete using (auth.uid() = user_id);
+
+create policy "Users can read own simulation results" on public.simulation_results for select using (auth.uid() = user_id);
+create policy "Users can insert own simulation results" on public.simulation_results for insert with check (auth.uid() = user_id);
+create policy "Users can update own simulation results" on public.simulation_results for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
+create policy "Users can delete own simulation results" on public.simulation_results for delete using (auth.uid() = user_id);
 
 create policy "Users can read own progress" on public.user_progress for select using (auth.uid() = user_id);
 create policy "Users can insert own progress" on public.user_progress for insert with check (auth.uid() = user_id);
