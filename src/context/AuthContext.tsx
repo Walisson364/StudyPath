@@ -9,10 +9,15 @@ type AuthContextValue = {
   session: Session | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<string | null>;
-  signUp: (name: string, email: string, password: string) => Promise<string | null>;
+  signUp: (name: string, email: string, password: string) => Promise<SignUpResult>;
   signInWithGoogle: () => Promise<string | null>;
   resetPassword: (email: string) => Promise<string | null>;
   signOut: () => Promise<void>;
+};
+
+type SignUpResult = {
+  error: string | null;
+  needsEmailConfirmation: boolean;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -50,8 +55,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return error?.message ?? null;
       },
       async signUp(name, email, password) {
-        if (!hasSupabaseConfig) return 'Configure o Supabase no arquivo .env para cadastrar.';
-        const { error } = await supabase.auth.signUp({
+        if (!hasSupabaseConfig) {
+          return {
+            error: 'Configure o Supabase no arquivo .env para cadastrar.',
+            needsEmailConfirmation: false,
+          };
+        }
+
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -59,7 +70,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             emailRedirectTo: `${window.location.origin}/app`,
           },
         });
-        return error?.message ?? null;
+
+        if (error) {
+          return {
+            error: error.message,
+            needsEmailConfirmation: false,
+          };
+        }
+
+        if (data.session) {
+          setSession(data.session);
+        }
+
+        return {
+          error: null,
+          needsEmailConfirmation: !data.session,
+        };
       },
       async signInWithGoogle() {
         if (!hasSupabaseConfig) return 'Configure o Supabase no arquivo .env para usar Google OAuth.';

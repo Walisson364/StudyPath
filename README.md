@@ -19,10 +19,12 @@ VITE_SUPABASE_ANON_KEY=
 
 3. No Supabase, execute o SQL em `supabase/schema.sql`.
 
-4. Ative em Authentication:
+4. Em Authentication, configure:
 
 - Email/password
-- Email confirmation
+- Confirm email desativado para o cadastro entrar direto no app
+- Senha minima de 8+ caracteres nas configuracoes de senha
+- Rate limits e CAPTCHA em producao, se houver muito cadastro automatizado
 - Google OAuth, se for usar login com Google
 
 5. Rode:

@@ -3,6 +3,8 @@ import { FormEvent, useState } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
+const SIGNUP_PASSWORD_MIN_LENGTH = 8;
+
 export default function AuthPage({ mode }: { mode: 'login' | 'signup' | 'reset' }) {
   const { user, signIn, signUp, resetPassword, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
@@ -16,21 +18,45 @@ export default function AuthPage({ mode }: { mode: 'login' | 'signup' | 'reset' 
 
   async function submit(event: FormEvent) {
     event.preventDefault();
+    setMessage('');
+
+    const cleanName = name.trim();
+    const cleanEmail = email.trim();
+
+    if (mode === 'signup' && password.length < SIGNUP_PASSWORD_MIN_LENGTH) {
+      setMessage(`Use uma senha com pelo menos ${SIGNUP_PASSWORD_MIN_LENGTH} caracteres.`);
+      return;
+    }
+
     setBusy(true);
-    const error =
-      mode === 'login'
-        ? await signIn(email, password)
-        : mode === 'signup'
-          ? await signUp(name, email, password)
-          : await resetPassword(email);
+    let error: string | null = null;
+    let needsEmailConfirmation = false;
+
+    if (mode === 'login') {
+      error = await signIn(cleanEmail, password);
+    } else if (mode === 'signup') {
+      const result = await signUp(cleanName, cleanEmail, password);
+      error = result.error;
+      needsEmailConfirmation = result.needsEmailConfirmation;
+    } else {
+      error = await resetPassword(cleanEmail);
+    }
+
     setBusy(false);
     if (error) setMessage(error);
     else if (mode === 'reset') setMessage('Enviamos um link de recuperacao para seu e-mail.');
-    else if (mode === 'signup') setMessage('Cadastro iniciado. Confirme seu e-mail para acessar com seguranca.');
-    else navigate('/app');
+    else if (mode === 'signup' && needsEmailConfirmation) {
+      setMessage('Conta criada. Este ambiente ainda esta pedindo confirmacao por e-mail; avise a equipe para liberar o acesso direto.');
+    } else navigate('/app');
   }
 
   const title = mode === 'login' ? 'Entrar no StudyPath' : mode === 'signup' ? 'Criar sua rota' : 'Recuperar senha';
+  const subtitle =
+    mode === 'signup'
+      ? 'Crie sua conta e entre direto. Seus dados continuam protegidos por senha e regras de acesso.'
+      : mode === 'login'
+        ? 'Acesse sua rota com e-mail e senha.'
+        : 'Informe seu e-mail para receber um link seguro de recuperacao.';
 
   return (
     <div className="grid min-h-screen place-items-center bg-[radial-gradient(circle_at_top,#dbeafe,transparent_35%),#f8fafc] px-4 py-8">
@@ -42,23 +68,23 @@ export default function AuthPage({ mode }: { mode: 'login' | 'signup' | 'reset' 
         <form onSubmit={submit} className="glass rounded-[2rem] p-6 sm:p-8">
           <h1 className="text-3xl font-extrabold text-slate-950">{title}</h1>
           <p className="mt-2 text-sm font-semibold leading-6 text-slate-500">
-            Use Supabase Auth com e-mail, senha e OAuth. Sua jornada fica protegida por RLS.
+            {subtitle}
           </p>
           <div className="mt-7 space-y-4">
             {mode === 'signup' && (
               <label className="block">
                 <span className="mb-2 flex items-center gap-2 text-sm font-bold text-slate-600"><User size={16} /> Nome</span>
-                <input className="field" value={name} onChange={(e) => setName(e.target.value)} required placeholder="Seu nome" />
+                <input className="field" value={name} onChange={(e) => setName(e.target.value)} required placeholder="Seu nome" autoComplete="name" />
               </label>
             )}
             <label className="block">
               <span className="mb-2 flex items-center gap-2 text-sm font-bold text-slate-600"><Mail size={16} /> E-mail</span>
-              <input className="field" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="voce@email.com" />
+              <input className="field" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="voce@email.com" autoComplete="email" />
             </label>
             {mode !== 'reset' && (
               <label className="block">
                 <span className="mb-2 flex items-center gap-2 text-sm font-bold text-slate-600"><Lock size={16} /> Senha</span>
-                <input className="field" type="password" minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="Minimo 6 caracteres" />
+                <input className="field" type="password" minLength={mode === 'signup' ? SIGNUP_PASSWORD_MIN_LENGTH : 6} value={password} onChange={(e) => setPassword(e.target.value)} required placeholder={mode === 'signup' ? 'Minimo 8 caracteres' : 'Sua senha'} autoComplete={mode === 'signup' ? 'new-password' : 'current-password'} />
               </label>
             )}
           </div>
